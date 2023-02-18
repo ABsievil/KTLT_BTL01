@@ -3,6 +3,10 @@
 
 #include "main.h"
 #include <vector>
+#include <fstream>
+#include <cstring>
+#include <iterator>
+#include <algorithm>
 void display(int HP, int level, int remedy, int maidenkiss, int phoenixdown, int rescue);
 void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, int & maidenkiss, int & phoenixdown, int & rescue);
 

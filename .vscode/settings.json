@@ -6,6 +6,10 @@
         "vector": "cpp",
         "xstring": "cpp",
         "xutility": "cpp",
-        "iostream": "cpp"
-    }
+        "iostream": "cpp",
+        "cstdlib": "cpp",
+        "iterator": "cpp",
+        "iosfwd": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }
