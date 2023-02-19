@@ -2,6 +2,9 @@
 #include <vector>
 using namespace std;
 
+// bug dãy núi có 2 hoặc 2 phần tử
+
+
 //khai báo hàm
 void display(int,int,int,int,int,int);
 void adventureToKoopa(string,int &,int &,int &,int &,int &,int &);
@@ -10,18 +13,25 @@ void set_sukien(char);
 void set_file_dulieuthem(char);
 int set_HP(int,int,int);
 int setHP_fibonaci(int);
-int check_namma(int);
-bool check_nui(vector<int>,int );
+int check_namma(int,int,int &,bool &,bool &);
+bool check_nui(vector<int> );
 void findMaxiMini(vector <int>);
+void set_nammaloai3(vector<int>);
+void set_sukien19( int & remedy, int & maidenkiss, int & phoenixdown);
+void set_sukien18(int &HP,int MaxHP);
+bool check_Lancelot(int);
+bool checkHP_nammaMushGhost=0;
+
 //biến và mảng toàn cục:
  vector< int > sukien;
 vector< int > nammaMushGhost;
 vector <int> chuoi_mush_ghost;
 int maxi,mini,max2_3x,max2_3i,maxi2,mini2,mtx=-2,mti=-3;
+int** arr_aclepius;
+int r1,c1; int solangapsukien19=0; int n9; int solangapsukien18=0;
+string* chuoi_merlin;
 
 
- // bug nhặt được thuốc tự động sử dụng khi trạng thái tí hon và ếch chưa build
- //bug nấm loại 1 chạy sai
 
 void display(int HP, int level, int remedy, int maidenkiss, int phoenixdown, int rescue) {  //in các giá trị khi game end.
     cout << "HP=" << HP
@@ -83,6 +93,16 @@ int setHP_fibonaci(int HP) // hàm nhập giá trị HP và trả về giá tr�
 bool check_nui(vector<int> arr) {   // dùng cho nấm ma loại 2
     int n = arr.size();
     // Tìm đỉnh núi
+    if(n==1) {mtx=arr[0];mti=0;}
+    else if(n==2) {
+        if(arr[0]>arr[1]){
+            mtx=arr[0];mti=0;
+        }
+        else if(arr[0]<arr[1]){
+            mtx=arr[1];mti=1;
+        }
+    }
+    else {
     for (int i = 1; i < n-1; i++) {
         if (arr[i-1] < arr[i] && arr[i] > arr[i+1]) {
             // Nếu phần tử hiện tại lớn hơn phần tử trước đó và lớn hơn phần tử sau đó
@@ -94,6 +114,7 @@ bool check_nui(vector<int> arr) {   // dùng cho nấm ma loại 2
         }
          else if(arr[0]>arr[1]){mtx=arr[0];mti=0;}  //tạm thời coi nó là đỉnh núi, tí check sau
         else if(arr[n-1]>arr[n-2]){mtx=arr[n-1];mti=n-1;}
+    }
     }
     // Kiểm tra tính chất tăng/giảm dần của dãy số
     if (mti == -3) {
@@ -200,7 +221,7 @@ void set_nammaloai3(vector<int> arr){
     }
 }
 
-int check_namma(int HP){        //dùng cho sự kiện 13
+int check_namma(int HP,int MaxHP,int &phoenixdown,bool &dangbienthanhtihon,bool &dangbienthanhech){        //dùng cho sự kiện 13
   for(int i=0;i<nammaMushGhost.size();i++){
      if(nammaMushGhost[i]==1){  
           findMaxiMini(chuoi_mush_ghost, nammaMushGhost[i]);
@@ -249,9 +270,48 @@ int check_namma(int HP){        //dùng cho sự kiện 13
         HP -=(max2_3x + max2_3i);
          cout<<" HP khi an nam 4:"<<HP<<endl;
      }
+
+  if(HP<=0) {           //check HP sau mỗi vòng
+       if(phoenixdown>0){ cout<<"do bi chet nen phai dung phoemixdown\n"; 
+        phoenixdown--;
+        HP=MaxHP;
+        if(dangbienthanhtihon==1) dangbienthanhtihon=0;
+        if(dangbienthanhech==1) dangbienthanhech=0;
+       }     
+       else{ cout<<"HP="<<HP; cout<<" khi an nam thu "<<i+1<<" nen ket thuc CT\n";   checkHP_nammaMushGhost=1; break;}
   }
+ }
   nammaMushGhost.clear();
  return HP;  
+}
+
+void set_sukien19( int & remedy, int & maidenkiss, int & phoenixdown){
+solangapsukien19++;
+    for(int i=0;i<r1;i++){
+        int remedy1=0,maidenkiss1=0,phoenixdown1=0;
+        for(int j=0;j<c1;j++){
+             if(arr_aclepius[i][j]==16 && remedy1<=2){   
+                remedy++;remedy1++;
+             }
+             else if(arr_aclepius[i][j]==17 && maidenkiss1<=2){
+                maidenkiss++;maidenkiss1++;
+             }
+             else if(arr_aclepius[i][j]==18 && phoenixdown1<=2){
+                phoenixdown++;phoenixdown1++;
+             }
+        }
+    }
+}
+
+void set_sukien18(int &HP,int MaxHP){
+solangapsukien18++;
+    for(int i=0;i<n9;i++){
+        if(chuoi_merlin[i]=="Merlin" ||chuoi_merlin[i]=="merlin" ) {   cout<<"HP cong 3 va tang den maxhp"<<endl;
+            HP+=3;
+            HP=HP>MaxHP?MaxHP:HP;
+        }
+        else { cout<<"HP cong 2 va tang den maxhp"<<endl;    HP+=2;HP=HP>MaxHP?MaxHP:HP;}
+    }
 }
 
 void set_sukien(char line[]) {  // hàm đọc sự kiện của dòng 2 file tc1_input
@@ -267,11 +327,11 @@ void set_sukien(char line[]) {  // hàm đọc sự kiện của dòng 2 file tc
             sukien.push_back(num);
             num = 0;
         }
-        else if(str[i]=='\n') break; 
+        else if(str[i]=='\n') { sukien.push_back(num);  break; }
     }
-    if (num > 0) {  //nếu chuỗi line không kết thúc bằng khoảng trắng thì lưu giá trị vào sukien
-        sukien.push_back(num);
-    }
+    // if (num > 0) {  //nếu chuỗi line không kết thúc bằng khoảng trắng thì lưu giá trị vào sukien
+    //     sukien.push_back(num);
+    // }
 }
 
 void set_file_dulieuthem(char line[]) {   //dùng cho hàng 3 của file tc1_input
@@ -282,7 +342,7 @@ void set_file_dulieuthem(char line[]) {   //dùng cho hàng 3 của file tc1_inp
         file_names.push_back(token);
         token = strtok(NULL, ",");
     }
-    cout<<"hi:"<< file_names[0]<<endl<< file_names[1]<<endl<< file_names[2]<<endl;
+    cout<<"day la ten 3 file da doc:"<< file_names[0]<<endl<< file_names[1]<<endl<< file_names[2]<<endl;
     // Duyet qua tung file va doc du lieu tu cac file
     for (int i = 0; i < file_names.size(); i++) {
     ifstream file(file_names[i]);
@@ -304,8 +364,58 @@ void set_file_dulieuthem(char line[]) {   //dùng cho hàng 3 của file tc1_inp
         }
     }
        }
-       else if(file_names[i] == "tc1_merlin_pack"){}
-       else if(file_names[i] == "tc1_aclepius_pack"){}
+       else if(file_names[i] == "tc1_aclepius_pack"){
+         string line;
+         file>>r1>>c1;   cout<<" r1 va c1 la:"<<r1<<" "<<c1<<endl;
+         getline(file, line);
+         int arr[r1][c1];
+         arr_aclepius = new int*[r1]; // Cấp phát mảng con trỏ cho các hàng
+         for (int i = 0; i < r1; i++) {
+         arr_aclepius[i] = new int[c1]; // Cấp phát mảng cho mỗi hàng
+         }       
+         for(int i=0;i<r1;i++){
+            getline(file, line);
+            stringstream ss(line);
+             for(int j=0;j<c1;j++){
+                 string number;
+                 if (getline(ss, number, ' ')){
+                   arr[i][j]=stoi(number);
+                 }
+             }
+         }
+        
+        // Gán giá trị cho mảng 2 chiều
+         for (int i = 0; i < r1; i++) {
+             for (int j = 0; j < c1; j++) {
+                 arr_aclepius[i][j] = arr[i][j];
+             }
+        }
+
+         for(int i=0;i<r1;i++){    // vòng for này chỉ để in gtri để check, về sau nhớ bỏ
+            cout<<"day la gia tri cua hang "<<i+1<<":";
+            for(int j=0;j<c1;j++){
+                cout<< arr_aclepius[i][j]<<" ";
+            }
+            cout<<endl;
+         }  
+       }
+       else if(file_names[i] == "tc1_merlin_pack"){
+       string line;
+       file>>n9; cout<<"n9 la:"<<n9<<endl;
+       getline(file, line);
+       chuoi_merlin= new string[n9];
+       for(int i=0;i<n9;i++){
+            getline(file, line);
+            stringstream ss(line);
+            string chuoi;
+            if (getline(ss, chuoi)){
+                   chuoi_merlin[i]=chuoi;
+            }
+       }
+       cout<<"chuoi_merlin da doc la:\n";
+       for(int i=0;i<n9;i++) cout<<chuoi_merlin[i]<<endl;
+       }
+       
        
 
         file.close();
@@ -313,13 +423,22 @@ void set_file_dulieuthem(char line[]) {   //dùng cho hàng 3 của file tc1_inp
 }
 }
 
+bool check_Lancelot(int HP){
+    int soUC=0;
+    for(int i=1;i<=HP;i++){
+        if(HP%i==0) soUC++;
+    }
+    if(soUC==2) return 1;
+    else return 0;
+}
 
 void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, int & maidenkiss, int & phoenixdown, int & rescue) {
     #define N 256 
     FILE * fp=NULL;
     char line[N];  int trangthaitihon; //lưu giá trị i khi hiệp sĩ biến thành trangthaitihon
-    rescue= -1;        int luu_level;int trangthaiech;  bool dangbienthanhtihon=0, dangbienthanhech=0;
+    rescue= -1;        int luu_level;int trangthaiech;  bool dangbienthanhtihon=0, dangbienthanhech=0; 
     // do trangthaitihon và trangthaiech chỉ nhận giá trị khi gặp sự kiện 6 và 7, nên để ktra điều kiện có dg bị trạng thái tí hon và trạng thái ếch hay không ta phải dùng 2 biến dangbienthanhtihon và dangbienthanhech, nếu nó =0 thì ko bị, =1 thì đang bị
+    bool mode_Althur=0, mode_Lancelot=0;
 
     fp=fopen("tc1_input","r"); 
     //lấy giá trị của hàng 1 trong file
@@ -328,11 +447,15 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
     //lấy giá trị của hàng 2 trong file  
     fgets(line, N, fp);
     set_sukien(line);
-    int MaxHP=HP;
     //lấy giá trị của hàng 3 trong file 
     fgets(line, N, fp);
     set_file_dulieuthem(line);
+     
+     int MaxHP=HP; 
+     if(MaxHP==999) mode_Althur=1; 
+     mode_Lancelot=check_Lancelot(MaxHP);
 
+cout<<"so su kien da duoc luu:"<<sukien.size()<<endl;
 
     for(int i=0;i<sukien.size();i++){  cout<<"dang chay qua ma su kien thu "<<i+1<<" sukien[i] la:"<<sukien[i]<<endl;   // nhớ xóa hàng này
          int j=i+1;  
@@ -342,9 +465,10 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
          if(sukien[i]==0) {rescue=1;break;}   //nếu gặp sự kiện =0 thì thoát ra và hoàn thành chương trình
 
          else if(sukien[i]==6){     //gặp Shaman
-         if(dangbienthanhech==1) goto label2;
+         if(dangbienthanhech==1 || dangbienthanhtihon==1 || mode_Lancelot==1 || mode_Althur==1){cout<<"do dang bi buff or Lancelot nen khong danh voi shaman"<<endl; goto label2;}
               if(level>levelO) {   
-               if(level<9)  level+=2;  
+               if(level<=8)  level+=2;
+               else if(level==9) level++;  
               }
               else if(level<levelO){
                 HP=HP<5?1:(HP/5) ; 
@@ -363,17 +487,18 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
          label2:{}     
          }
          else if(sukien[i]==7){
-            if(dangbienthanhtihon==1) goto label;   //nếu đang ở trạng thái tí hon thì không thực hiện hàm
-            if(level>levelO) { 
-               if(level<9)  level+=2;  
-              }
+            if(dangbienthanhtihon==1 || dangbienthanhech==1 || mode_Lancelot==1 || mode_Althur==1) {cout<<"do dang bi buff or Lancelot nen khong danh voi Siren Vajsh "<<endl; goto label; }  //nếu đang ở trạng thái tí hon thì không thực hiện hàm
+            if(level>levelO) {   
+               if(level<=8)  level+=2;
+               else if(level==9) level++;  
+            }
             else if(level<levelO){
               if(maidenkiss>=1){
                 maidenkiss--;
               }            
               else {
-                luu_level=level;
-                level=0;
+                luu_level=level;  //lưu lại level khi bị thua để sau khi hồi phục trở lại level trước khi biến thành ếch
+                level=1;   cout<<"do thua Vajsh nen level tro ve 1\n";
                 trangthaiech=j;
                 dangbienthanhech=1;
               }
@@ -413,29 +538,64 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
 
              cout<<"nam ma mushghost tai i ne:";
              for(int m:nammaMushGhost) cout<<m<<endl;
-              if(nammaMushGhost.size()>0) {HP=check_namma(HP);} 
-             nammaMushGhost.clear();
+              if(nammaMushGhost.size()>0) {HP=check_namma(HP,MaxHP,phoenixdown,dangbienthanhtihon,dangbienthanhech);}
+              if(checkHP_nammaMushGhost==1) break; 
          }    
          else if(sukien[i]==15){   // nhặt được remedy
              remedy=remedy<99?(++remedy):remedy;
-             if(j<=trangthaitihon+3){
+             if(dangbienthanhtihon==1){
                 HP*=5;
                 HP= HP>MaxHP?MaxHP:HP;   //nếu HP lớn hơn HP ban đầu thì giảm về HP ban đầu
                 dangbienthanhtihon=0;
+                remedy--;
             }
          }
          else if(sukien[i]==16){
             maidenkiss=maidenkiss<99?(++maidenkiss):maidenkiss;
-            if(j>=trangthaiech+3){
+            if(dangbienthanhech==1){
               level=luu_level;
               dangbienthanhech=0;
+              maidenkiss--;
             }
          }
          else if(sukien[i]==17){
             phoenixdown=phoenixdown<99?(++phoenixdown):phoenixdown;
          }
+         else if(sukien[i]==19){
+            if(solangapsukien19<1) {
+                set_sukien19(remedy,maidenkiss,phoenixdown);
+
+                if(dangbienthanhtihon==1){
+                HP*=5;
+                HP= HP>MaxHP?MaxHP:HP;   //nếu HP lớn hơn HP ban đầu thì giảm về HP ban đầu
+                dangbienthanhtihon=0;
+                remedy--;   cout<<"remedy -1 de giaitrutrangthai tihon"<<endl;
+                }
+                else if(dangbienthanhech==1){
+                level=luu_level;
+                dangbienthanhech=0;
+                maidenkiss--; cout<<"maidenkiss -1 đe giaitrutrangthai ech"<<endl;
+                } 
+            }
+            else{ cout<<"do da gap su kien 19 roi nen khong chay nua"<<endl;}
+            cout<<"thuoc sau khi gap su kien 19 va giaitrutrangthai la:"<<remedy<<" "<<maidenkiss<<" "<<phoenixdown<<endl;
+         }
+         else if(sukien[i]==99){   //gặp Bowser
+            if((mode_Lancelot==1 && level>=8) || mode_Althur==1 || level>=10) {
+                if(level<10) level=10;
+                cout<<"gap phai trum roi nen Bowser nay xin thua\n";
+                }
+            else {cout<<"thua Bower nen end game\n";rescue==0; break; }
+         }
+         else if(sukien[i]==18){   //gặp phù thuỷ Merlin
+             if(solangapsukien18<1){
+                set_sukien18(HP,MaxHP);   
+             }
+             else cout<<"do da gap sukien 18 roi nen se khong chay nua\n";
+         }
 
          else {       //  các sự kiện còn lại
+          if(mode_Lancelot==1 || mode_Althur==1) {cout<<"gap thang choa Lancelot or thang BOSS Althur roi nen tao xin thua\n"; goto label3;}
             if(level>levelO) {   //truyền sukien[i] vào biến loaidoithu
                if(level<10)  level++;  
             }
@@ -455,15 +615,17 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
               level=luu_level;
               dangbienthanhech=0;
             }
+          label3:{}
          }
          
 
 
-          if(HP<=0) {             //check HP sau mỗi vòng
-            if(phoenixdown>0){
+          if(HP<=0) {           //check HP sau mỗi vòng
+            if(phoenixdown>0){ cout<<"do bi chet nen phai dung phoemixdown\n"; 
                 phoenixdown--;
                 HP=MaxHP;
-                trangthaitihon=10;  
+                if(dangbienthanhtihon==1) dangbienthanhtihon=0;
+                if(dangbienthanhech==1) dangbienthanhech=0;
             }
             
             else {rescue=0;break;}
