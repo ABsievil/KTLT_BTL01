@@ -482,6 +482,10 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
     fgets(line, N, fp);
     set_file_dulieuthem(line);
      
+     cout<<"file da doc dong 1:"<<HP<<" "<<level<<" "<<remedy<<" "<<maidenkiss<<" "<<phoenixdown<<endl;
+     cout<<"file da doc su kien:";
+     for(int i:sukien)cout<<i<<" ";cout<<endl;
+
      int MaxHP=HP; 
      if(MaxHP==999) mode_Althur=1; 
      mode_Lancelot=check_Lancelot(MaxHP);
