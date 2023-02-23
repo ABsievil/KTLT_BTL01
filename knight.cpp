@@ -1,15 +1,15 @@
 #include "knight.h"
-using namespace std;
 
 
 //biến và mảng toàn cục:
 vector< int > sukien;
-vector< int > nammaMushGhost;
-vector <int> chuoi_mush_ghost;
+vector< int > nammaMushGhost;    //số sự kiện nấm ma 
+vector <int> chuoi_mush_ghost;   //lưu dữ liệu file mush ghost
 int maxi,mini,max2_3x,max2_3i,maxi2,mini2,mtx=-2,mti=-3;  //dùng cho sự kiện ăn nấm
-int** arr_aclepius;  
-string* chuoi_merlin;
+int** arr_aclepius;  //mảng 2 chiều lưu dữ liệu file aclepius sự kiện 19
+string* chuoi_merlin;   //lưu các chuỗi quà trong file merlin sự kiện 18
 int r1,c1; int solangapsukien19=0; int n9; int solangapsukien18=0;
+bool checkHP_nammaMushGhost=0;
 
 //khai báo hàm
 float baseDamage(int);
@@ -21,10 +21,9 @@ int check_namma(int,int,int &,bool &,bool &);
 bool check_nui(vector<int> );
 void findMaxiMini(vector <int>);
 void set_nammaloai3(vector<int>);
-void set_sukien19( int & remedy, int & maidenkiss, int & phoenixdown);
-void set_sukien18(int &HP,int MaxHP);
+void set_sukien19( int &, int &, int &);
+void set_sukien18(int &,int );
 bool check_Lancelot(int);
-bool checkHP_nammaMushGhost=0;
 bool isInteger(string);
 
 void display(int HP, int level, int remedy, int maidenkiss, int phoenixdown, int rescue) {  //in các giá trị khi game end.
@@ -47,9 +46,13 @@ float baseDamage(int loaidoithu){          //trả về baseDamage
 int set_HP(int level, int phoenixdown,int HP){   //dùng setup cho mã sự kiện 11
   int n1= ((level + phoenixdown)%5 + 1)*3;
   int s1=0;
-  for(int i=0,j=99;i<=n1,j>10;i++,j-=2){
-    s1+=j;
-  }
+
+for(int i=99;i>10;i-=2){
+    if(n1>0){
+        s1+=i;
+        n1--;
+    }
+}
   HP+=(s1%100);
   int conHP=HP;
 
@@ -73,14 +76,7 @@ int setHP_fibonaci(int HP){ // hàm nhập giá trị HP và trả về giá tr�
         f2 = f3;
         f3 = f1 + f2;
     }
-    if (abs(HP - f2) <= abs(f3 - HP))
-    {
-        return f2;
-    }
-    else
-    {
-        return f3;
-    }
+    return f2;
 }
 
 bool check_nui(vector<int> arr) {   // dùng cho nấm ma loại 2
@@ -146,7 +142,7 @@ bool check_nui(vector<int> arr) {   // dùng cho nấm ma loại 2
     return true;
 }
 
-void findMaxiMini(vector <int >arr,int nammaMushGhost) {   //dùng cho nấm ma loại 1 và loại 3
+void findMaxiMini(vector <int >arr,int nammaMushGhost) {   //dùng cho nấm ma loại 1,3,4
     maxi = mini = maxi2 = mini2=0; // Khởi tạo giá trị ban đầu
     max2_3x=-5; max2_3i=-7;
     if(nammaMushGhost==1){
@@ -209,15 +205,15 @@ void set_nammaloai3(vector<int> arr){
     }
 }
 
-int check_namma(int HP,int MaxHP,int &phoenixdown,bool &dangbienthanhtihon,bool &dangbienthanhech){        //dùng cho sự kiện 13
+int check_namma(int HP,int MaxHP,int &phoenixdown,bool &dangbienthanhtihon,bool &dangbienthanhech){ //dùng cho sự kiện 13
   for(int i=0;i<nammaMushGhost.size();i++){
      if(nammaMushGhost[i]==1){  
           findMaxiMini(chuoi_mush_ghost, nammaMushGhost[i]);
-          HP-=(maxi+mini);
+          HP=(HP-(maxi+mini))>MaxHP?MaxHP:(HP-(maxi+mini));
      }
      else if(nammaMushGhost[i]==2){
         check_nui(chuoi_mush_ghost);
-        HP-=(mtx + mti);
+          HP=(HP-(mtx + mti))>MaxHP?MaxHP:(HP-(mtx + mti));
      }
      else if(nammaMushGhost[i]==3){
         vector<int> arr;
@@ -232,7 +228,7 @@ int check_namma(int HP,int MaxHP,int &phoenixdown,bool &dangbienthanhtihon,bool 
          }
         
         findMaxiMini(arr, nammaMushGhost[i]);  // tìm maxi2 và mini2
-        HP -=(maxi2 + mini2);
+        HP=(HP-(maxi2 + mini2))>MaxHP?MaxHP:(HP-(maxi2 + mini2));
 
      }
      else if(nammaMushGhost[i]==4){
@@ -248,7 +244,7 @@ int check_namma(int HP,int MaxHP,int &phoenixdown,bool &dangbienthanhtihon,bool 
          }
         
          findMaxiMini(arr, nammaMushGhost[i]);    // tìm max2_3x và min2_3i
-        HP -=(max2_3x + max2_3i);
+        HP=(HP-(max2_3x + max2_3i))>MaxHP?MaxHP:(HP-(max2_3x + max2_3i));
      }
 
   if(HP<=0) {           //check HP sau mỗi vòng
@@ -268,16 +264,16 @@ int check_namma(int HP,int MaxHP,int &phoenixdown,bool &dangbienthanhtihon,bool 
 void set_sukien19( int & remedy, int & maidenkiss, int & phoenixdown){
 solangapsukien19++;
     for(int i=0;i<r1;i++){
-        int remedy1=0,maidenkiss1=0,phoenixdown1=0;
+        int thuocdalay=0; //số thuốc ăn được trên 1 hàng
         for(int j=0;j<c1;j++){
-             if(arr_aclepius[i][j]==16 && remedy1<=2){   
-                remedy++;remedy1++;
+             if(arr_aclepius[i][j]==16 && thuocdalay<=2){   
+                remedy=remedy<99?(++remedy):99;  thuocdalay++;
              }
-             else if(arr_aclepius[i][j]==17 && maidenkiss1<=2){
-                maidenkiss++;maidenkiss1++;
+             else if(arr_aclepius[i][j]==17 && thuocdalay<=2){
+                maidenkiss=maidenkiss<99?(++maidenkiss):99;thuocdalay++;
              }
-             else if(arr_aclepius[i][j]==18 && phoenixdown1<=2){
-                phoenixdown++;phoenixdown1++;
+             else if(arr_aclepius[i][j]==18 && thuocdalay<=2){
+                phoenixdown=phoenixdown<99?(++phoenixdown):99;thuocdalay++;
              }
         }
     }
@@ -346,11 +342,11 @@ void set_sukien(char line[]) {  // hàm đọc sự kiện của dòng 2 file tc
     }
 }
 
-bool isInteger(string str) {
-    if (str.empty()) {
+bool isInteger(string str) {  //dùng trong file mushghost, để check số nhập vào có phải số dương ko
+    if (str.empty()) {  //check chuỗi rỗng
         return false;
     }
-    // Kiểm tra dấu của chuỗi
+    // Kiểm tra dấu của số
     if (str[0] == '-' || str[0] == '+') {
         if (str.size() == 1) {
             return false;
@@ -377,22 +373,23 @@ void set_file_dulieuthem(char line[]) {   //dùng cho hàng 3 của file tc1_inp
     while (token != NULL) {
         file_names.push_back(token);
         token = strtok(NULL, ",");
-    }
-
+    } 
+    // cout<<"cac file va vi tri file thu i da doc\n";
+    // for(int i=0;i<file_names.size();i++) cout<<i<<" "<<file_names[i]<<endl;
     // Duyet qua tung file va doc du lieu tu cac file
     for (int i = 0; i < file_names.size(); i++) {
     ifstream file(file_names[i]);
 
     // Doc gia tri n va cac so nguyen tu file (neu file mo thanh cong)
     if (file) {
-       if (i==0 && file_names[i] != ""){//cout<<file_names[0]<<endl; //tc1_mush_ghost   // file đọc sự kiện nấm sự kiện 13
+       if (file_names[i].find("mush_ghost") != string::npos){//tc1_mush_ghost   // file đọc sự kiện nấm sự kiện 13
          int n;
          file>>n;
          string line;
          getline(file, line);
          getline(file, line);
    
-       stringstream ss(line);
+        stringstream ss(line);
         for (int i = 0; i < n; i++) {
         string number;
           if(getline(ss, number, ',')) {
@@ -408,19 +405,19 @@ void set_file_dulieuthem(char line[]) {   //dùng cho hàng 3 của file tc1_inp
         //     cout<<chuoi_mush_ghost[j]<<" ";
         // }
        }
-       else if(i==1 && file_names[i] != ""){//cout<<file_names[1]<<endl;  //tc1_aclepius_pack  //file nhặt thuốc ở sự kiện 19
-         string line;
+       else if(file_names[i].find("aclepius_pack") != string::npos){//tc1_aclepius_pack  //file nhặt thuốc ở sự kiện 19
+         string line; 
          file>>r1>>c1; 
          getline(file, line);
-         int arr[r1][c1];
+         int arr[r1][c1];  
          arr_aclepius = new int*[r1]; // Cấp phát mảng con trỏ cho các hàng
-         for (int i = 0; i < r1; i++) {
+         for (int i = 0; i < r1; i++) {  
          arr_aclepius[i] = new int[c1]; // Cấp phát mảng cho mỗi hàng
          }       
-         for(int i=0;i<r1;i++){
+         for(int i=0;i<r1;i++){ 
             getline(file, line);
             stringstream ss(line);
-             for(int j=0;j<c1;j++){
+             for(int j=0;j<c1;j++){ 
                  string number;
                  if (getline(ss, number, ' ')){
                     arr[i][j]=stoi(number);
@@ -428,12 +425,12 @@ void set_file_dulieuthem(char line[]) {   //dùng cho hàng 3 của file tc1_inp
              }
          }
         
-        // Gán giá trị cho mảng 2 chiều
+        // Gán giá trị cho mảng 2 chiều toàn cục
          for (int i = 0; i < r1; i++) {
              for (int j = 0; j < c1; j++) {
                  arr_aclepius[i][j] = arr[i][j];
              }
-        }
+        }  
         // cout<<"gia tri r1 va c1 trong file aclepius trong sukien 19 la:"<<r1<<" "<<c1<<endl;
         // for(int i=0;i<r1;i++){    // vòng for này chỉ để in gtri để check, về sau nhớ bỏ
         //     cout<<"day la gia tri cua hang "<<i+1<<":";
@@ -444,7 +441,7 @@ void set_file_dulieuthem(char line[]) {   //dùng cho hàng 3 của file tc1_inp
         //  }
 
        }
-       else if(i==2 && file_names[i] != ""){//cout<<file_names[2]<<endl;  //tc1_merlin_pack  // file chuỗi merlin ở sự kiện 18
+       else if(file_names[i].find("merlin_pack") != string::npos){//tc1_merlin_pack  // file chuỗi merlin ở sự kiện 18
        string line;
        file>>n9;
        getline(file, line);
@@ -460,8 +457,9 @@ void set_file_dulieuthem(char line[]) {   //dùng cho hàng 3 của file tc1_inp
     //      cout<<"chuoi_merlin da doc la:\n";
     //    for(int i=0;i<n9;i++) cout<<chuoi_merlin[i]<<endl;
        }
-    file.close();
+
     }
+   file.close();
 }
 }
 
@@ -475,14 +473,14 @@ bool check_Lancelot(int HP){
 }
 
 void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, int & maidenkiss, int & phoenixdown, int & rescue) {
-    #define N 256 
+    #define N 256
     FILE * fp=NULL;
     char line[N];  int trangthaitihon; //lưu giá trị i khi hiệp sĩ biến thành trangthaitihon
     rescue= -1;  int luu_level;int trangthaiech;  bool dangbienthanhtihon=0, dangbienthanhech=0; 
     // do trangthaitihon và trangthaiech chỉ nhận giá trị khi gặp sự kiện 6 và 7, nên để ktra điều kiện có dg bị trạng thái tí hon và trạng thái ếch hay không ta phải dùng 2 biến dangbienthanhtihon và dangbienthanhech, nếu nó =0 thì ko bị, =1 thì đang bị
     bool mode_Althur=0, mode_Lancelot=0;
      fp=fopen(file_input.c_str(),"r"); 
-    //fp=fopen("tc1_input","r"); 
+
     //lấy giá trị của hàng 1 trong file
     fgets(line, N, fp);
     sscanf(line,"%d %d %d %d %d", &HP, &level, &remedy, &maidenkiss, &phoenixdown);
@@ -492,7 +490,8 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
     //lấy giá trị của hàng 3 trong file 
     fgets(line, N, fp);
     set_file_dulieuthem(line);
-     fclose(fp);
+    fclose(fp);
+
      int MaxHP=HP; 
      if(MaxHP==999) mode_Althur=1; 
      mode_Lancelot=check_Lancelot(MaxHP);
@@ -501,7 +500,7 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
     //  cout<<"file da doc su kien:";
     // for(int i:sukien)cout<<i<<" ";cout<<endl;
 
-    for(int i=0;i<sukien.size();i++){ 
+    for(int i=0;i<sukien.size();i++){  cout<<i+1<<" "<<sukien[i]<<"   ";
          int j=i+1;  
          int b = j%10;
          int levelO = j > 6?(b > 5?b : 5) : b; 
@@ -509,20 +508,24 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
          if(sukien[i]==0) {rescue=1;break;}   //nếu gặp sự kiện =0 thì thoát ra và hoàn thành chương trình
 
          else if(sukien[i]==6){     //gặp Shaman
-         if(dangbienthanhech==1 || dangbienthanhtihon==1 || mode_Lancelot==1 || mode_Althur==1){ goto label2;}
+            if(dangbienthanhech==1 || dangbienthanhtihon==1) goto label2;
+             if(mode_Lancelot==1 || mode_Althur==1){
+             if(level<=8)  level+=2;
+             else if(level==9) level++;  
+             goto label2;
+            }
               if(level>levelO) {   
                if(level<=8)  level+=2;
                else if(level==9) level++;  
               }
               else if(level<levelO){
-                HP=HP<5?1:(HP/5) ; 
                 if(remedy>0)
                 {  
                   remedy--;  //nếu có thuốc remedy thì ko biến thành trạng thái tí hon
-                  HP*=5;
                 }
                 else 
                 {
+                  HP=HP<5?1:(HP/5) ; 
                   trangthaitihon=j; 
                   dangbienthanhtihon=1;
                 }
@@ -531,7 +534,12 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
          label2:{}     
          }
          else if(sukien[i]==7){     //gặp Siren Vajsh
-            if(dangbienthanhtihon==1 || dangbienthanhech==1 || mode_Lancelot==1 || mode_Althur==1) {goto label; }  
+            if(dangbienthanhtihon==1 || dangbienthanhech==1) goto label; 
+            if(mode_Lancelot==1 || mode_Althur==1) {
+                if(level<=8)  level+=2;
+                else if(level==9) level++;  
+                goto label;
+            }  
             if(level>levelO) {   
                if(level<=8)  level+=2;
                else if(level==9) level++;  
@@ -575,16 +583,16 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
                      divisor /= 10;
                 }
                  else{
-                     if(i==0 && a/divisor!=1) continue;  //nếu không phải mã sự kiện 13 thì bỏ qua sự kiện này và chạy sự kiện tiếp theo
-                     if(i==1 && a/divisor!=3) continue;
+                     if(i==0 && a/divisor!=1) break;  //nếu không phải mã sự kiện 13 thì bỏ qua sự kiện này và chạy sự kiện tiếp theo
+                     if(i==1 && a/divisor!=3) break;
                      a %= divisor;
                      divisor /= 10;
                     
                  }
                }
 
-              if(nammaMushGhost.size()>0) {HP=check_namma(HP,MaxHP,phoenixdown,dangbienthanhtihon,dangbienthanhech);}
-              if(checkHP_nammaMushGhost==1) break;   // nếu đang ăn nấm ma mà HP<0 và ko có phoenixdown thì end game
+              if(nammaMushGhost.size()>0) {HP=check_namma(HP,MaxHP,phoenixdown,dangbienthanhtihon,dangbienthanhech); HP>MaxHP?MaxHP:HP;}
+              if(checkHP_nammaMushGhost==1) {rescue=0; break;}   // nếu đang ăn nấm ma mà HP<0 và ko có phoenixdown thì end game
          }    
          else if(sukien[i]==15){   // nhặt được remedy
              remedy=remedy<99?(++remedy):remedy;
@@ -610,24 +618,24 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
             if(solangapsukien19<1) {
                 set_sukien19(remedy,maidenkiss,phoenixdown);
 
-                if(dangbienthanhtihon==1){
+                if(dangbienthanhtihon==1 && remedy>0){
                 HP*=5;
                 HP= HP>MaxHP?MaxHP:HP;   //nếu HP lớn hơn HP ban đầu thì giảm về HP ban đầu
                 dangbienthanhtihon=0;
                 remedy--; 
                 }
-                else if(dangbienthanhech==1){
+                else if(dangbienthanhech==1 && maidenkiss>0){
                 level=luu_level;
                 dangbienthanhech=0;
                 maidenkiss--; 
                 } 
             }
             // else{ cout<<"do da gap su kien 19 roi nen khong chay nua"<<endl;}
-            for (int i = 0; i < r1; i++) {  // Giải phóng bộ nhớ động của mảng hai chiều
-                 delete[] arr_aclepius[i];
-            }
+            // for (int i = 0; i < r1; i++) {  // Giải phóng bộ nhớ động của mảng hai chiều
+            //      delete[] arr_aclepius[i];
+            // }
             
-            delete[] arr_aclepius;  // Giải phóng bộ nhớ động của mảng hai chiều
+            // delete[] arr_aclepius;  // Giải phóng bộ nhớ động của mảng hai chiều
          }
          else if(sukien[i]==99){   //gặp Bowser
             if((mode_Lancelot==1 && level>=8) || mode_Althur==1 || level>=10) {
@@ -639,11 +647,15 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
              if(solangapsukien18<1){
                 set_sukien18(HP,MaxHP);   
              }
-             delete[] chuoi_merlin;
+           //  delete[] chuoi_merlin;
          }
 
          else if(sukien[i]==1 || sukien[i]==2 || sukien[i]==3 || sukien[i]==4 || sukien[i]==5) {       //  các sự kiện còn lại
-          if(mode_Lancelot==1 || mode_Althur==1) {goto label3;}
+          if(mode_Lancelot==1 || mode_Althur==1) {
+             if(level<=8)  level+=2;
+             else if(level==9) level++; 
+             goto label3;
+          }
             if(level>levelO) {   //truyền sukien[i] vào biến loaidoithu
                if(level<10)  level++;  
             }
@@ -652,8 +664,11 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
                 HP-=damage;
             }
 
+          label3:{}
+         }
+         
 
-            //check nếu đã qua ba màn thì hiệp sĩ trở về bình thường
+        //check nếu đã qua ba màn thì hiệp sĩ trở về bình thường
             if(j>=trangthaitihon+3 && dangbienthanhtihon==1){
                 HP*=5;
                 HP= HP>MaxHP?MaxHP:HP;   //nếu HP lớn hơn HP ban đầu thì giảm về HP ban đầu
@@ -663,11 +678,6 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
               level=luu_level;
               dangbienthanhech=0;
             }
-          label3:{}
-         }
-         else {   //các sự kiện âm
-          //  if(i==sukien.size()-1) {break;}  //chả biết đúng ko nma test case làm thế
-        }
 
 
           //check HP sau mỗi vòng
@@ -686,4 +696,5 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
     }
    display(HP,level,remedy,maidenkiss,phoenixdown,rescue);
   sukien.clear();
+  chuoi_mush_ghost.clear();
 }

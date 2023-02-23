@@ -10,7 +10,10 @@
         "cstdlib": "cpp",
         "iterator": "cpp",
         "iosfwd": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "fstream": "cpp",
+        "algorithm": "cpp",
+        "cstring": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled",
     "chatgpt.gpt3.apiKey": "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"
