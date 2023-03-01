@@ -5,8 +5,8 @@
 #include <vector>
 #include <fstream>
 #include <cstring>
-#include <iterator>  //hàm find trong sukien 18
-#include <algorithm>
+#include <iterator> 
+#include <algorithm> 
 #include <cstdio>
 #include <string>
 #include <cctype>

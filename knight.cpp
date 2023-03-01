@@ -15,15 +15,15 @@ bool checkHP_nammaMushGhost=0;
 float baseDamage(int);
 int set_HP(int,int,int);
 int setHP_fibonaci(int);
-bool check_nui(vector<int> );
+bool check_mountain(vector<int> );
 void findMaxiMini(vector <int>,int);
 void set_nammaloai3(vector<int>);
 int check_namma(int,int,int &,bool &,bool &);
 void set_sukien19( int &, int &, int &);
 void set_sukien18(int &,int );
-void set_sukien(char);
+void set_sukien(string);
 bool isInteger(string);
-void set_file_dulieuthem(char);
+void set_file_line3(string);
 bool check_Lancelot(int);
 
 
@@ -80,7 +80,7 @@ int setHP_fibonaci(int HP){ // hàm nhập giá trị HP và trả về giá tr�
     return f2;
 }
 
-bool check_nui(vector<int> arr) {   // dùng cho nấm ma loại 2
+bool check_mountain(vector<int> arr) {   // dùng cho nấm ma loại 2
     int n = arr.size();
     // Tìm đỉnh núi
     if(n==1) {mtx=arr[0];mti=0;}
@@ -213,7 +213,7 @@ int check_namma(int HP,int MaxHP,int &phoenixdown,bool &dangbienthanhtihon,bool 
           HP=(HP-(maxi+mini))>MaxHP?MaxHP:(HP-(maxi+mini));
      }
      else if(nammaMushGhost[i]==2){
-        check_nui(chuoi_mush_ghost);
+        check_mountain(chuoi_mush_ghost);
           HP=(HP-(mtx + mti))>MaxHP?MaxHP:(HP-(mtx + mti));
      }
      else if(nammaMushGhost[i]==3){
@@ -322,12 +322,11 @@ for (int i = 0; i < n9; i++) {
     }
 }
 
-void set_sukien(char line[]) {  // hàm đọc sự kiện của dòng 2 file tc1_input
-     char* p = strtok(line, " "); // phân tách chuỗi thành các token bởi khoảng trắng
-    while (p != NULL) {
-        int num = atoi(p); // chuyển đổi chuỗi thành số nguyên
-        sukien.push_back(num); // thêm số nguyên vào vector
-        p = strtok(NULL, " "); // tiếp tục phân tách chuỗi
+void set_sukien(string line) {
+    stringstream ss(line);
+    int num;
+    while (ss >> num) {
+        sukien.push_back(num);
     }
 }
 
@@ -356,9 +355,8 @@ bool isInteger(string str) {  //dùng trong file mushghost, để check số nh�
     return true;
 }
 
-void set_file_dulieuthem(char line[]) {   //dùng cho hàng 3 của file tc1_input
-     string line_input=line;
-     stringstream ss(line_input);
+void set_file_line3(string line) {   //dùng cho hàng 3 của file tc1_input
+     stringstream ss(line);
      string chuoi[3];
      for(int i=0;i<3;i++){
         getline(ss,chuoi[i],',');
@@ -372,18 +370,17 @@ void set_file_dulieuthem(char line[]) {   //dùng cho hàng 3 của file tc1_inp
          int n;
          file>>n;
          string line;
-         getline(file, line);
+         getline(file, line);   //bỏ qua hàng đầu tiên đọc n
          getline(file, line);
    
         stringstream ss(line);
         for (int i = 0; i < n; i++) {
         string number;
           if(getline(ss, number, ',')) {
-            if (isInteger(number)) {
+            if (isInteger(number)) { //nếu dữ liệu đọc vào là số nguyên
                  chuoi_mush_ghost.push_back(stoi(number));
             }
-            //else cout<<"chuoi mush_ghost nhap vao khong hop le:"<<number<<endl;
-            
+            //else "chuoi mush_ghost nhap vao khong hop le"
           }
         }
        }
@@ -443,25 +440,23 @@ bool check_Lancelot(int HP){
 }
 
 void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, int & maidenkiss, int & phoenixdown, int & rescue) {
-    #define N 999   
-    FILE *fp=NULL;
-    char line[N];
+  
     int trangthaitihon; //lưu giá trị i khi hiệp sĩ biến thành trangthaitihon
     rescue= -1;    int luu_level;int trangthaiech;  bool dangbienthanhtihon=0, dangbienthanhech=0; 
     // do trangthaitihon và trangthaiech chỉ nhận giá trị khi gặp sự kiện 6 và 7, nên để ktra điều kiện có dg bị trạng thái tí hon và trạng thái ếch hay không ta phải dùng 2 biến dangbienthanhtihon và dangbienthanhech, nếu nó =0 thì ko bị, =1 thì đang bị
     bool mode_Althur=0, mode_Lancelot=0;
-
-     fp=fopen(file_input.c_str(),"r"); 
-    //lấy giá trị của hàng 1 trong file
-    fgets(line, N, fp);
-    sscanf(line,"%d %d %d %d %d", &HP, &level, &remedy, &maidenkiss, &phoenixdown);
-    //lấy giá trị của hàng 2 trong file  
-    fgets(line, N, fp);
+     
+    ifstream fp;
+    string line;
+    fp.open(file_input);
+    getline(fp, line);       //lấy giá trị của hàng 1 trong file
+    stringstream ss(line);   //dùng stringstream đọc tách các phần tử ra
+    ss >> HP >> level >> remedy >> maidenkiss >> phoenixdown;
+    getline(fp, line);       //lấy giá trị của hàng 2 trong file
     set_sukien(line);
-    //lấy giá trị của hàng 3 trong file 
-    fgets(line, N, fp);
-    set_file_dulieuthem(line);
-    fclose(fp);
+    getline(fp, line);       //lấy giá trị của hàng 3 trong file
+    set_file_line3(line);
+    fp.close();
 
      //check mode HP
      int MaxHP=HP; 
@@ -657,6 +652,7 @@ void adventureToKoopa(string file_input, int & HP, int & level, int & remedy, in
      if(HP>0 && i==sukien.size()-1) rescue=1;   //lưu lại giá trị rescue cho sự kiện cuối
      if(i<sukien.size()-1)  display(HP,level,remedy,maidenkiss,phoenixdown,rescue);
     }
+
   //in ra sự kiện kết thúc  
   display(HP,level,remedy,maidenkiss,phoenixdown,rescue);
   //giải phóng dữ liệu từ vector và con trỏ
